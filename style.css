@@ -1,0 +1,11 @@
+.row-outer {
+    display: flex;
+}
+
+.cell-outer {
+    width: 500px;
+    height: 300px;
+    background-color: aqua;
+    margin: 10px;
+    padding: 10px;
+}
