@@ -2,15 +2,14 @@ const appElement = document.getElementById("app");
 
 let cellClicked = [0,0]
 
-
 const table = []
 
 
-for (let i = 0; i < 10; i++){
-    const row = document.createElement('div');
+for (let i = 0; i < 100; i++){
+    const row = document.createElement('span');
     table[i] = []
     row.classList.add('row-outer')
-    for (let j = 0 ; j < 8; j++) {
+    for (let j = 0 ; j < 100; j++) {
         const cell = document.createElement("div");
         cell.classList.add('cell-outer')
         cell.contentEditable = true;
@@ -25,6 +24,35 @@ for (let i = 0; i < 10; i++){
     appElement.append(row);
 }
 
+const config = {
+	delimiter: "\t",	// auto-detect
+	newline: "\n",	// auto-detect
+	quoteChar: '"',
+	escapeChar: '"',
+	header: false,
+	transformHeader: undefined,
+	dynamicTyping: false,
+	preview: 0,
+	encoding: "",
+	worker: false,
+	comments: false,
+	step: undefined,
+	complete: undefined,
+	error: undefined,
+	download: false,
+	downloadRequestHeaders: undefined,
+	downloadRequestBody: undefined,
+	skipEmptyLines: false,
+	chunk: undefined,
+	chunkSize: undefined,
+	fastMode: undefined,
+	beforeFirstChunk: undefined,
+	withCredentials: undefined,
+	transform: undefined,
+	delimitersToGuess: [',', '\t', '|', ';', Papa.RECORD_SEP, Papa.UNIT_SEP],
+	skipFirstNLines: 0
+}
+
 var ctrlDown = false,
         ctrlKey = 17,
         cmdKey = 91,
@@ -34,11 +62,11 @@ var ctrlDown = false,
 document.addEventListener('keydown', pasteData)
 
 async function pasteData(e) {
-   e.preventDefault();  
     var key = e.which || e.keyCode; // keyCode detection
     var ctrl = e.ctrlKey ? e.ctrlKey : ((key === 17) ? true : false); // ctrl detection
-
+    
     if ( key == 86 && ctrl ) {
+        e.preventDefault();  
         console.log("Ctrl + V Pressed !");
         try {
             const clipboardContents = await navigator.clipboard.read();
@@ -50,7 +78,10 @@ async function pasteData(e) {
                 if (mimeType === "text/plain") {
                     const blob = await item.getType("text/plain");
                     const blobText = await blob.text();
-                  pasteIntoCells(blobText)
+                    const y = Papa.parse(blobText, config)
+                    console.log("sss", y )
+
+                  pasteIntoCells(y)
                   console.log(blobText)
                 } else if (mimeType === "text/html" && getOS() !== "Windows") {
                     const blob = await item.getType("text/html");
@@ -68,6 +99,8 @@ async function pasteData(e) {
           }
     } else if ( key == 67 && ctrl ) {
         console.log("Ctrl + C Pressed !");
+    } else {
+        return
     }
 
     
@@ -75,14 +108,14 @@ async function pasteData(e) {
 
 
 function pasteIntoCells(data) {
-
+    if( typeof data === 'string'){
+        return;
+    }
+    const modifiedData = data.data;
     
-    const massagedData = data.split("\n").map(i => i.split("\t"));
-    console.log(massagedData, cellClicked)
-    
-    for(let i = 0; i< Math.min(10, massagedData.length); i++){
-        for(let j = 0; j < Math.min(8, massagedData[0].length); j++){
-            table[i + cellClicked[0]][j + cellClicked[1]].innerHTML = massagedData[i][j];
+    for(let i = 0; i< Math.min(100, modifiedData.length); i++){
+        for(let j = 0; j < Math.min(100, modifiedData[0].length); j++){
+            table[i + cellClicked[0]][j + cellClicked[1]].innerHTML = modifiedData[i][j];
         }
     }
 }
